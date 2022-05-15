@@ -4,7 +4,7 @@ import { LoadFacebookUserApi } from '@/data/contracts/apis'
 import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/data/contracts/repos'
 import { FacebookAccount } from '@/domain/models'
 import { TokenGenerator } from '@/data/contracts/crypto'
-import { mocked } from 'ts-jest/utils'
+import { mocked } from 'jest-mock'
 import { mock, MockProxy } from 'jest-mock-extended'
 
 jest.mock('@/domain/models/facebook-account')
