@@ -10,16 +10,28 @@ type HttpResponse = {
 class FacebookLoginController {
   constructor(private readonly facebookAuthentication: FacebookAuthentication) { }
   async handle(httpRequest: any): Promise<HttpResponse> {
-    if (httpRequest.token === '' || httpRequest.token === null || httpRequest.token === undefined) {
-      return { statusCode: 400, data: new Error('The field token is required') }
-    }
+    try {
+      if (httpRequest.token === '' || httpRequest.token === null || httpRequest.token === undefined) {
+        return { statusCode: 400, data: new Error('The field token is required') }
+      }
 
-    const result = await this.facebookAuthentication.perform({ token: httpRequest.token })
-    if (result instanceof AccessToken) {
-      return { statusCode: 200, data: { accessToken: result.value } }
-    } else {
-      return { statusCode: 401, data: result }
+      const result = await this.facebookAuthentication.perform({ token: httpRequest.token })
+      if (result instanceof AccessToken) {
+        return { statusCode: 200, data: { accessToken: result.value } }
+      } else {
+        return { statusCode: 401, data: result }
+      }
+    } catch (error) {
+      return { statusCode: 500, data: new ServerError(error as Error) }
     }
+  }
+}
+
+class ServerError extends Error {
+  constructor(error?: Error) {
+    super('Server failed. Try again soon')
+    this.name = 'ServerError'
+    this.stack = error?.stack
   }
 }
 
@@ -66,5 +78,12 @@ describe('FacebookLoginController', () => {
   test('Should return 200 if authentication success', async () => {
     const httpResponse = await sut.handle({ token: 'any_token' })
     expect(httpResponse).toEqual({ statusCode: 200, data: { accessToken: 'any_value' } })
+  })
+
+  test('Should return 500 if authentication throws', async () => {
+    const error = new Error('infra_error')
+    facebookAuth.perform.mockRejectedValueOnce(error)
+    const httpResponse = await sut.handle({ token: 'any_token' })
+    expect(httpResponse).toEqual({ statusCode: 500, data: new ServerError(error) })
   })
 })
