@@ -1,4 +1,4 @@
-import { RequiredStringValidator, Validator } from '@/application/validation'
+import { RequiredStringValidator, ValidationBuilder } from '@/application/validation'
 
 describe('ValidationBuilder', () => {
   test('Should return a RequiredStringValidator', () => {
