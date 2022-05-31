@@ -1,4 +1,5 @@
 import './config/module-alias'
+import 'reflect-metadata'
 import { env } from '@/main/config/env'
 
 (async (): Promise<void> => {
