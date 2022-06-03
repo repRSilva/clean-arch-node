@@ -1,27 +1,5 @@
-import { HttpResponse, forbidden, ok } from '@/application/helpers'
 import { ForbiddenError } from '@/application/errors'
-import { RequiredStringValidator } from '@/application/validation'
-import { Authorize } from '@/domain/use-cases'
-
-type HttpRequest = { authorization: string }
-type Model = Error | { userId: string }
-class AuthenticationMiddleware {
-  constructor(private readonly authorize: Authorize) { }
-  async handle({ authorization }: HttpRequest): Promise<HttpResponse<Model>> {
-    if (this.validate({ authorization }) === false) return forbidden()
-    try {
-      const userId = await this.authorize({ token: authorization })
-      return ok({ userId })
-    } catch {
-      return forbidden()
-    }
-  }
-
-  private validate({ authorization }: HttpRequest): Boolean {
-    const error = new RequiredStringValidator(authorization, 'authorization').validate()
-    return error === undefined
-  }
-}
+import { AuthenticationMiddleware } from '@/application/middlewares'
 
 describe('AuthenticationMiddleware', () => {
   let sut: AuthenticationMiddleware
