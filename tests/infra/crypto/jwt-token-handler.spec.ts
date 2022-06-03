@@ -3,31 +3,45 @@ import jwt from 'jsonwebtoken'
 jest.mock('jsonwebtoken')
 
 describe('JwtTokenHandler', () => {
+  let secret: string
   let sut: JwtTokenHandler
   let fakeJwt: jest.Mocked<typeof jwt>
 
   beforeAll(() => {
+    secret = 'any_secret'
     fakeJwt = jwt as jest.Mocked<typeof jwt>
-    fakeJwt.sign.mockImplementation(() => 'any_token')
   })
 
   beforeEach(() => {
-    sut = new JwtTokenHandler('any_secret')
+    sut = new JwtTokenHandler(secret)
   })
 
-  test('Should call sign with correct params', async () => {
-    await sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
-    expect(fakeJwt.sign).toHaveBeenCalledWith({ key: 'any_key' }, 'any_secret', { expiresIn: 1 })
-  })
+  describe('generateToken', () => {
+    let key: string
+    let expirationInMs: number
+    let token: string
 
-  test('Should return a token', async () => {
-    const token = await sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
-    expect(token).toBe('any_token')
-  })
+    beforeAll(() => {
+      key = 'any_key'
+      expirationInMs = 1000
+      token = 'any_token'
+      fakeJwt.sign.mockImplementation(() => token)
+    })
 
-  test('Shoul rethrow if sign throws', async () => {
-    fakeJwt.sign.mockImplementationOnce(() => { throw new Error('token_error') })
-    const promise = sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
-    await expect(promise).rejects.toThrow(new Error('token_error'))
+    test('Should call sign with correct params', async () => {
+      await sut.generateToken({ key, expirationInMs })
+      expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: 1 })
+    })
+
+    test('Should return a token', async () => {
+      const generatedToken = await sut.generateToken({ key, expirationInMs })
+      expect(generatedToken).toBe(token)
+    })
+
+    test('Shoul rethrow if sign throws', async () => {
+      fakeJwt.sign.mockImplementationOnce(() => { throw new Error('token_error') })
+      const promise = sut.generateToken({ key, expirationInMs })
+      await expect(promise).rejects.toThrow(new Error('token_error'))
+    })
   })
 })
