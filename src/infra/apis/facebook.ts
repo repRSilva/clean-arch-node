@@ -11,8 +11,8 @@ type UserInfo = {
   email: string
 }
 
-type Params = LoadFacebookUser.Params
-type Result = LoadFacebookUser.Result
+type Input = LoadFacebookUser.Input
+type Output = LoadFacebookUser.Output
 
 export class FacebookApi implements LoadFacebookUser {
   private readonly baseUrl = 'https://graph.facebook.com'
@@ -21,7 +21,7 @@ export class FacebookApi implements LoadFacebookUser {
     private readonly clientSecret: string
   ) { }
 
-  async loadUser({ token }: Params): Promise<Result> {
+  async loadUser({ token }: Input): Promise<Output> {
     return this.getUserInfo(token)
       .then(({ id, name, email }) => ({ facebookId: id, name, email }))
       .catch(() => undefined)
