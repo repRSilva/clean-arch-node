@@ -32,14 +32,19 @@ describe('ChangeProfilePicture', () => {
   })
 
   test('Should not call UploadFile when file is undefined', async () => {
-    crypto.uuid.mockReturnValue(uuid)
     await sut({ id: 'any_id', file: undefined })
     expect(fileStorage.upload).not.toHaveBeenCalled()
   })
 
   test('Should call SaveUserPicture with corret input', async () => {
     await sut({ id: 'any_id', file })
-    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: 'any_url' })
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: 'any_url', initials: undefined })
+    expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1)
+  })
+
+  test('Should call SaveUserPicture with corret input when file is undefined', async () => {
+    await sut({ id: 'any_id', file: undefined })
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined })
     expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1)
   })
 })
