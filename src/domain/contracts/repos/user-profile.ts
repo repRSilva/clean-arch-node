@@ -5,3 +5,12 @@ export interface SaveUserPicture {
 export namespace SaveUserPicture {
   export type Input = { pictureUrl?: string }
 }
+
+export interface LoadUserProfile {
+  load: (input: LoadUserProfile.Input) => Promise<LoadUserProfile.Output>
+}
+
+export namespace LoadUserProfile {
+  export type Input = { id: string }
+  export type Output = {}
+}
