@@ -1,4 +1,4 @@
-import { UploadFile, UUIDGenerator } from '@/domain/contracts/gateways'
+import { UploadFile, DeleteFile, UUIDGenerator } from '@/domain/contracts/gateways'
 import { ChangeProfilePicture, setupChangeProfilePicture } from '@/domain/use-cases'
 import { SaveUserPicture, LoadUserProfile } from '@/domain/contracts/repos'
 import { UserProfile } from '@/domain/entities'
@@ -10,7 +10,7 @@ jest.mock('@/domain/entities/user-profile')
 describe('ChangeProfilePicture', () => {
   let uuid: string
   let file: Buffer
-  let fileStorage: MockProxy<UploadFile>
+  let fileStorage: MockProxy<UploadFile & DeleteFile>
   let crypto: MockProxy<UUIDGenerator>
   let userProfileRepo: MockProxy<SaveUserPicture & LoadUserProfile>
   let sut: ChangeProfilePicture
@@ -59,16 +59,17 @@ describe('ChangeProfilePicture', () => {
   })
 
   test('Should return correct data on success', async () => {
-    mocked(UserProfile).mockImplementationOnce(id => ({
-      setPicture: jest.fn(),
-      id: 'any_id',
-      pictureUrl: 'any_url',
-      initials: 'any_initials'
-    }))
+    mocked(UserProfile).mockImplementationOnce(id => ({ setPicture: jest.fn(), id: 'any_id', pictureUrl: 'any_url', initials: 'any_initials' }))
     const result = await sut({ id: 'any_id', file })
-    expect(result).toMatchObject({
-      pictureUrl: 'any_url',
-      initials: 'any_initials'
+    expect(result).toMatchObject({ pictureUrl: 'any_url', initials: 'any_initials' })
+  })
+
+  test('Should call DeleteFile when file exists and SaveUserPicture thrwos', async () => {
+    userProfileRepo.savePicture.mockRejectedValueOnce(new Error())
+    const promise = sut({ id: 'any_id', file })
+    promise.catch(() => {
+      expect(fileStorage.delete).toHaveBeenCalledWith({ key: uuid })
+      expect(fileStorage.delete).toHaveBeenCalledTimes(1)
     })
   })
 })
