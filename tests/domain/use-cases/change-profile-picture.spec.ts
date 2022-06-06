@@ -64,12 +64,22 @@ describe('ChangeProfilePicture', () => {
     expect(result).toMatchObject({ pictureUrl: 'any_url', initials: 'any_initials' })
   })
 
-  test('Should call DeleteFile when file exists and SaveUserPicture thrwos', async () => {
+  test('Should call DeleteFile when file exists and SaveUserPicture throws', async () => {
+    expect.assertions(2)
     userProfileRepo.savePicture.mockRejectedValueOnce(new Error())
     const promise = sut({ id: 'any_id', file })
     promise.catch(() => {
       expect(fileStorage.delete).toHaveBeenCalledWith({ key: uuid })
       expect(fileStorage.delete).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  test('Should not call DeleteFile when file does not exists and SaveUserPicture throws', async () => {
+    expect.assertions(1)
+    userProfileRepo.savePicture.mockRejectedValueOnce(new Error())
+    const promise = sut({ id: 'any_id', file: undefined })
+    promise.catch(() => {
+      expect(fileStorage.delete).not.toHaveBeenCalled()
     })
   })
 })
