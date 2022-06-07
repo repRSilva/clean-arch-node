@@ -53,6 +53,7 @@
     "@types/module-alias": "^2.0.1",
     "@types/node": "^16.11.36",
     "@types/supertest": "^2.0.12",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
@@ -79,7 +80,8 @@
     "module-alias": "^2.2.2",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.29"
+    "typeorm": "^0.2.29",
+    "uuid": "^8.3.2"
   },
   "engines": {
     "node": "16.x"
