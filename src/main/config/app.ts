@@ -1,6 +1,6 @@
+import { setupMiddlewares } from '@/main/config/middleware'
+import { setupRoutes } from '@/main/config//routes'
 import express from 'express'
-import { setupMiddlewares } from './middleware'
-import { setupRoutes } from './routes'
 
 const app = express()
 setupMiddlewares(app)
