@@ -64,4 +64,11 @@ describe('AwsS3FileStorage', () => {
     const imageUrl = await sut.upload({ key: 'any key', file })
     expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/any%20key`)
   })
+
+  test('Should rethrow if putObject', async () => {
+    const error = new Error('upload_error')
+    putObjectPromiseSpy.mockRejectedValueOnce(error)
+    const promise = sut.upload({ key, file })
+    await expect(promise).rejects.toThrow(error)
+  })
 })
