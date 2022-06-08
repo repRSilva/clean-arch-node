@@ -49,7 +49,7 @@ describe('PgUserAccountRepository', () => {
       await pgUserRepo.save({ email: 'any_email', name: 'any_name', facebookId: 'any_fb_id' })
       const { id } = await sut.saveWithFacebook({ id: '1', email: 'new_email', name: 'new_name', facebookId: 'new_fb_id' })
       const pgUser = await pgUserRepo.findOne({ id: 1 })
-      expect(pgUser).toEqual({ id: 1, email: 'any_email', name: 'new_name', facebookId: 'new_fb_id' })
+      expect(pgUser).toMatchObject({ id: 1, email: 'any_email', name: 'new_name', facebookId: 'new_fb_id' })
       expect(id).toBe('1')
     })
   })
