@@ -6,7 +6,7 @@ type SaveInput = SaveUserPicture.Input
 type LoadInput = LoadUserProfile.Input
 type LoadOutput = LoadUserProfile.Output
 
-export class PgUserProfileRepository implements SaveUserPicture {
+export class PgUserProfileRepository implements SaveUserPicture, LoadUserProfile {
   async savePicture({ id, pictureUrl, initials }: SaveInput): Promise<void> {
     const pgUserRepo = getRepository(PgUser)
     await pgUserRepo.update({ id: parseInt(id) }, { pictureUrl, initials })
