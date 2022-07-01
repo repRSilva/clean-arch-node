@@ -1,4 +1,4 @@
-import { RequiredStringValidator, Validator } from '@/application/validation'
+import { RequiredString, Validator } from '@/application/validation'
 
 export class ValidationBuilder {
   private constructor(private readonly value: string, private readonly fieldName: string, private readonly validators: Validator[] = []) { }
@@ -8,7 +8,7 @@ export class ValidationBuilder {
   }
 
   required(): ValidationBuilder {
-    this.validators.push(new RequiredStringValidator(this.value, this.fieldName))
+    this.validators.push(new RequiredString(this.value, this.fieldName))
     return this
   }
 
