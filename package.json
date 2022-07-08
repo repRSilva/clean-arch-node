@@ -34,7 +34,7 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc -p tsconfig-build.json",
     "prepare": "husky install",
-    "check": "npm-check -s -u",
+    "check": "npx npm-check -s -u",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest --passWithNoTests --no-cache --runInBand",
