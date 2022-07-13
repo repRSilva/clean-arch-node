@@ -7,8 +7,7 @@ export class AllowedMimeTypes implements Validator {
   constructor(private readonly allowed: Extension[], private readonly mimeType: string) { }
   validate(): Error | undefined {
     let isValid: boolean = false
-    if (this.isPng()) isValid = true
-    else if (this.isJpg()) isValid = true
+    if (this.isPng() || this.isJpg()) isValid = true
     if (!isValid) return new InvalidMimeTypeError(this.allowed)
   }
 
