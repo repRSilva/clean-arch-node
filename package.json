@@ -46,6 +46,8 @@
     "test:s3": "npm run test:integration -- ./tests/external/aws-s3-file-storage.test.ts"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
     "@jest-mock/express": "^1.4.5",
     "@types/aws-sdk": "^2.7.0",
     "@types/axios": "^0.14.0",
