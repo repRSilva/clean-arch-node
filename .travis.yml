@@ -1,8 +1,0 @@
-addons:
-  sonarcloud:
-    organization: "reprsilva"
-    token:
-      secure: "7981c447a3ccc74893f1b77ddf034e0fc36a4dc7"
-
-script:
-  - sonar-scanner
