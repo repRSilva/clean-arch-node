@@ -29,11 +29,16 @@ export class PgConnection {
 
   async closeTransaction(): Promise<void> {
     if (this.query === undefined) throw new ConnectionNotFoundError()
-    await this.query?.release()
+    await this.query.release()
   }
 
   async commit(): Promise<void> {
     if (this.query === undefined) throw new ConnectionNotFoundError()
-    await this.query?.commitTransaction()
+    await this.query.commitTransaction()
+  }
+
+  async rollback(): Promise<void> {
+    if (this.query === undefined) throw new ConnectionNotFoundError()
+    await this.query.rollbackTransaction()
   }
 }
