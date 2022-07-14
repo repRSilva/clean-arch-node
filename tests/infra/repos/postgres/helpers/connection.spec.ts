@@ -1,5 +1,6 @@
 import { createConnection, getConnection, getConnectionManager } from 'typeorm'
 import { PgConnection, ConnectionNotFoundError } from '@/infra/repos/postgres/helpers'
+import { PgUser } from '@/infra/repos/postgres/entities'
 
 jest.mock('typeorm', () => ({
   Entity: jest.fn(),
@@ -21,6 +22,7 @@ describe('PgConnection', () => {
   let releaseSpy: jest.Mock
   let commitTransactionSpy: jest.Mock
   let rollbackTransactionSpy: jest.Mock
+  let getRepositorySpy: jest.Mock
   let sut: PgConnection
 
   beforeAll(() => {
@@ -31,11 +33,13 @@ describe('PgConnection', () => {
     releaseSpy = jest.fn()
     commitTransactionSpy = jest.fn()
     rollbackTransactionSpy = jest.fn()
+    getRepositorySpy = jest.fn().mockReturnValue('any_repo')
     createQueryRunnerSpy = jest.fn().mockReturnValue({
       startTransaction: startTransactionSpy,
       release: releaseSpy,
       commitTransaction: commitTransactionSpy,
-      rollbackTransaction: rollbackTransactionSpy
+      rollbackTransaction: rollbackTransactionSpy,
+      manager: { getRepository: getRepositorySpy }
     })
     createConnectionSpy = jest.fn().mockResolvedValue({ createQueryRunner: createQueryRunnerSpy })
     jest.mocked(createConnection).mockImplementation(createConnectionSpy)
@@ -133,9 +137,23 @@ describe('PgConnection', () => {
     await sut.disconnect()
   })
 
-  test('Should return ConnectionNotFoundError on rlolbackTransaction if connection is not found', async () => {
+  test('Should return ConnectionNotFoundError on rollbackTransaction if connection is not found', async () => {
     const promise = sut.rollback()
     expect(rollbackTransactionSpy).not.toHaveBeenCalled()
     await expect(promise).rejects.toThrow(new ConnectionNotFoundError())
+  })
+
+  test('Should get repository', async () => {
+    await sut.connect()
+    const repository = sut.getRepository(PgUser)
+    expect(getRepositorySpy).toHaveBeenCalledWith(PgUser)
+    expect(getRepositorySpy).toHaveBeenCalledTimes(1)
+    expect(repository).toBe('any_repo')
+    await sut.disconnect()
+  })
+
+  test('Should return ConnectionNotFoundError on getRepository if connection is not found', async () => {
+    expect(getRepositorySpy).not.toHaveBeenCalled()
+    expect(() => sut.getRepository(PgUser)).toThrow(new ConnectionNotFoundError())
   })
 })
