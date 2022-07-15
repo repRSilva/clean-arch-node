@@ -1,6 +1,4 @@
-import { RequiredString, Validator, Required, RequiredBuffer } from '@/application/validation'
-import { AllowedMimeTypes, Extension } from './allowed-mime-types'
-import { MaxFileSize } from './max-file-size'
+import { RequiredString, Validator, Required, RequiredBuffer, AllowedMimeTypes, Extension, MaxFileSize } from '@/application/validation'
 
 export class ValidationBuilder {
   private constructor(private readonly value: any, private readonly fieldName: string, private readonly validators: Validator[] = []) { }
