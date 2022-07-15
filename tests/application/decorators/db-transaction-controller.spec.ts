@@ -1,13 +1,20 @@
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Controller } from '@/application/controllers'
+import { HttpResponse } from '@/application/helpers'
 
 class DbTransactionController {
   constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) { }
-  async perform(httpRequest: any): Promise<void> {
+  async perform(httpRequest: any): Promise<HttpResponse | undefined> {
     await this.db.openTransaction()
-    await this.decoratee.perform(httpRequest)
-    await this.db.commit()
-    await this.db.closeTransaction()
+    try {
+      const httpResponse = await this.decoratee.perform(httpRequest)
+      await this.db.commit()
+      return httpResponse
+    } catch (error) {
+      await this.db.rollback()
+    } finally {
+      await this.db.closeTransaction()
+    }
   }
 }
 
@@ -15,6 +22,7 @@ interface DbTransaction {
   openTransaction: () => Promise<void>
   closeTransaction: () => Promise<void>
   commit: () => Promise<void>
+  rollback: () => Promise<void>
 }
 
 describe('DbTransactionController', () => {
@@ -25,6 +33,7 @@ describe('DbTransactionController', () => {
   beforeAll(() => {
     db = mock()
     decoratee = mock()
+    decoratee.perform.mockResolvedValue({ statusCode: 204, data: null })
   })
 
   beforeEach(() => {
@@ -45,9 +54,25 @@ describe('DbTransactionController', () => {
 
   test('Should call commit and close transaction on sucess', async () => {
     await sut.perform({ any: 'any' })
+    expect(db.rollback).not.toHaveBeenCalled()
     expect(db.commit).toHaveBeenCalledWith()
     expect(db.commit).toHaveBeenCalledTimes(1)
     expect(db.closeTransaction).toHaveBeenCalledWith()
     expect(db.closeTransaction).toHaveBeenCalledTimes(1)
+  })
+
+  test('Should call rollback and close transaction on failure', async () => {
+    decoratee.perform.mockRejectedValueOnce(new Error('decoratee_error'))
+    await sut.perform({ any: 'any' })
+    expect(db.commit).not.toHaveBeenCalled()
+    expect(db.rollback).toHaveBeenCalledWith()
+    expect(db.rollback).toHaveBeenCalledTimes(1)
+    expect(db.closeTransaction).toHaveBeenCalledWith()
+    expect(db.closeTransaction).toHaveBeenCalledTimes(1)
+  })
+
+  test('Should return same result as decoratee on success', async () => {
+    const httpResponse = await sut.perform({ any: 'any' })
+    expect(httpResponse).toEqual({ statusCode: 204, data: null })
   })
 })
