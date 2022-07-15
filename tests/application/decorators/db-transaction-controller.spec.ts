@@ -2,9 +2,12 @@ import { mock, MockProxy } from 'jest-mock-extended'
 import { Controller } from '@/application/controllers'
 import { HttpResponse } from '@/application/helpers'
 
-class DbTransactionController {
-  constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) { }
-  async perform(httpRequest: any): Promise<HttpResponse | undefined> {
+class DbTransactionController extends Controller {
+  constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) {
+    super()
+  }
+
+  async perform(httpRequest: any): Promise<HttpResponse> {
     await this.db.openTransaction()
     try {
       const httpResponse = await this.decoratee.perform(httpRequest)
@@ -39,6 +42,10 @@ describe('DbTransactionController', () => {
 
   beforeEach(() => {
     sut = new DbTransactionController(decoratee, db)
+  })
+
+  test('Should extends controller', () => {
+    expect(sut).toBeInstanceOf(Controller)
   })
 
   test('Should open transaction', async () => {
